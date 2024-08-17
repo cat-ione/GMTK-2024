@@ -41,7 +41,7 @@ class Game:
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps():.0f}")
 
-            self.dt = self.clock.tick(0) * 0.05
+            self.dt = self.clock.tick(60) * 0.05
 
         pygame.quit()
 
