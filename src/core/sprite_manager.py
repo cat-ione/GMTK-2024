@@ -5,7 +5,7 @@ import pygame
 
 class SpriteManager:
     def __init__(self) -> None:
-        self.layers = {layer: RenderLayer() for layer in Layer}
+        self.layers = {layer: layer.value() for layer in Layer}
 
     def update(self, dt: float) -> None:
         for layer in self.layers.values():

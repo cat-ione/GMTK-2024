@@ -1,19 +1,14 @@
 from src.core.sprite import Sprite
 
-from typing import Callable
-from enum import Enum, auto
+from typing import Callable, Iterable
+from enum import Enum
 import pygame
-
-class Layer(Enum):
-    BACKGROUND = auto()
-    DEFAULT = auto()
-    HUD = auto()
 
 class RenderLayer:
     def __init__(self, key: Callable[[Sprite], int] = None) -> None:
         self.key = key
         self.sprites: list[Sprite] = []
-        self.bounded_sprites: dict[Sprite, Sprite] = {}
+        self.bound_sprites: dict[Sprite, Sprite] = {}
 
     def update(self, dt: float) -> None:
         if self.key is not None:
@@ -28,9 +23,10 @@ class RenderLayer:
 
     def _draw_sprite(self, sprite: Sprite, screen: pygame.Surface) -> None:
         sprite.draw(screen)
-        # Recursively draw bounded sprites
-        if sprite in self.bounded_sprites:
-            self._draw_sprite(self.bounded_sprites[sprite], screen)
+        # Recursively draw bound sprites
+        if sprite in self.bound_sprites:
+            self._draw_sprite(self.bound_sprites[sprite], screen)
+            self._draw_sprite(self.bound_sprites[sprite], screen)
 
     def add(self, sprite: Sprite) -> None:
         self.sprites.append(sprite)
@@ -39,11 +35,11 @@ class RenderLayer:
         self.sprites.remove(sprite)
 
     def bind(self, bottom: Sprite, top: Sprite) -> None:
-        if top in self.bounded_sprites:
+        if top in self.bound_sprites:
             # Generate a trace of the cyclical binding
             stack = [current := top]
-            while current in self.bounded_sprites:
-                stack.append(current := self.bounded_sprites[current])
+            while current in self.bound_sprites:
+                stack.append(current := self.bound_sprites[current])
             trace = " -> ".join(map(str, stack))
             raise ValueError(f"Cyclical binding detected: \n{trace}")
 
@@ -53,7 +49,45 @@ class RenderLayer:
             # top either doesn't exist in the layer or has been removed
             # from being bound to another sprite
             pass
-        self.bounded_sprites[bottom] = top
+        self.bound_sprites[bottom] = top
+
+    def unbind(self, bottom: Sprite) -> bool:
+        if bottom in self.bound_sprites:
+            del self.bound_sprites[bottom]
+            return True
+        return False
 
     def __len__(self) -> int:
-        return len(self.sprites) + len(self.bounded_sprites)
+        return len(self.sprites) + len(self.bound_sprites)
+
+class FilteredRenderLayer(RenderLayer):
+    def __init__(self, filter: Callable[[Sprite], bool]) -> None:
+        super().__init__()
+        self.filter = filter
+
+    def update(self, dt: float) -> None:
+        for sprite in filter(self.filter, self.sprites):
+            sprite.update(dt)
+
+class SelectiveRenderLayer(RenderLayer):
+    def __init__(self, selector: Callable[[RenderLayer], Iterable[Sprite]]) -> None:
+        super().__init__()
+        self.selector = selector
+
+    def update(self, dt: float) -> None:
+        for sprite in self.selector(self):
+            sprite.update(dt)
+
+    def draw(self, screen: pygame.Surface) -> None:
+        for sprite in self.selector(self):
+            self._draw_sprite(sprite, screen)
+
+class NoRenderLayer(RenderLayer):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def draw(self, screen: pygame.Surface) -> None:
+        pass
+
+class Layer(Enum):
+    BLOB = NoRenderLayer

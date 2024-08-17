@@ -2,8 +2,10 @@ from src.exe import pathof
 
 from multimethod import multimeta
 from pygame.math import Vector2
+from typing import Callable
 from typing import Self
 from math import floor
+import time
 
 def read_file(path: str) -> str:
     """Opens a file, read the contents of the file, then closes it.
@@ -67,3 +69,26 @@ class Vec(Vector2, metaclass=multimeta):
 
     def __hash__(self) -> int:
         return tuple(self).__hash__()
+
+class Timer:
+    def __init__(self, time_func: Callable[[], float]) -> None:
+        self.time_func = time_func
+        self.total_time = time_func()
+        self.start_time = time.time()
+
+    def ended(self) -> bool:
+        return time.time() - self.start_time >= self.total_time
+
+    def ended_and_reset(self) -> bool:
+        if self.ended:
+            self.reset()
+            return True
+        return False
+
+    def reset(self) -> None:
+        self.start_time = time.time()
+        self.total_time = self.time_func()
+
+    @property
+    def progress(self) -> float:
+        return (time.time() - self.start_time) / self.total_time

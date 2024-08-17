@@ -1,9 +1,8 @@
 from src.scenes.main_scene import MainScene
-from src.core.glpg import Texture
-from src.core.glpg import Window
+from src.core.glpg import Window, Texture
 from src.core.scene import Scene
 
-from pygame.locals import QUIT
+from pygame.locals import QUIT, SRCALPHA
 import pygame
 
 class AbortScene(Exception):
@@ -16,8 +15,8 @@ class AbortGame(Exception):
 
 class Game:
     def __init__(self) -> None:
-        self.window = Window(800, 600)
-        self.screen = pygame.Surface((800, 600))
+        self.window = Window(800, 800)
+        self.screen = pygame.Surface((800, 800), SRCALPHA)
         self.texture = Texture(self.window, self.screen)
         self.clock = pygame.time.Clock()
 
@@ -35,13 +34,13 @@ class Game:
                 break
 
             self.scene.draw(self.screen)
-            self.texture.update(self.screen)
-            self.window.blit(self.texture, (0, 0))
+            # self.texture.update(self.screen)
+            # self.window.blit(self.texture, (0, 0))
             pygame.display.flip()
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps():.0f}")
 
-            self.dt = self.clock.tick(60) * 0.05
+            self.dt = self.clock.tick(0) * 0.05
 
         pygame.quit()
 
