@@ -1,3 +1,5 @@
+from src.exe import pathof
+
 from multimethod import multimeta
 from pygame.math import Vector2
 from typing import Self
@@ -12,7 +14,7 @@ def read_file(path: str) -> str:
     Returns:
         The full contents of the file.
     """
-    with open(path, "r") as file:
+    with open(pathof(path), "r") as file:
         return file.read()
 
 def inttup(tup: tuple[float, float]) -> tuple:
