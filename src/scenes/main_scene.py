@@ -28,6 +28,9 @@ class MainScene(Scene):
 
         self.fractal_shader = Shader(game.window, "assets/shaders/fractal.frag")
         self.fractal_texture = Texture(game.window, assets.noise_image, self.fractal_shader)
+        self.fractal_post_shader = Shader(game.window, "assets/shaders/fractal_post.frag")
+        surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
+        self.fractal_post_texture = Texture(game.window, surf, self.fractal_post_shader)
 
     def update(self, dt: float) -> None:
         r = self.main_blob.radius
@@ -47,7 +50,8 @@ class MainScene(Scene):
         self.sprite_manager.update(dt)
 
     def draw(self, screen: pygame.Surface) -> None:
-        self.game.window.blit(self.fractal_texture, (0, 0))
+        self.fractal_post_texture.blit(self.fractal_texture, (0, 0))
+        self.game.window.blit(self.fractal_post_texture, (0, 0))
         self.game.window.blit(self.blob_texture, (0, 0))
         self.sprite_manager.draw(screen)
 

@@ -26,6 +26,4 @@ void main() {
         }
         color += texColor * (1.0 - progress / n) / n * smoothstep(0.0, 0.15, progress / n);
     }
-    color.rgb = (color.rgb - 0.5) * 1.5 + 0.5;
-    color.rgb *= max(pow(length(fragmentTexCoord - vec2(0.5)) * 2.0, 3.0), 0.4) * 0.2;
 }
