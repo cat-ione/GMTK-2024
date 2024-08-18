@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 from src.sprites.blob import Blob, ParticleBlob
 from src.core.glpg import Texture, Shader
 from src.core.scene import Scene
+from src.utils import Timer
 import src.assets as assets
 
 from random import randint, uniform
@@ -21,10 +22,11 @@ class MainScene(Scene):
 
         self.blobs = []
         self.blob_count = 0
+        self.blob_timer = Timer(lambda: 0.01)
         Blob(self, (400, 400), 200)
 
     def update(self, dt: float) -> None:
-        if randint(0, 100) < 5:
+        for _ in range(self.blob_timer.ended_and_reset()):
             angle = uniform(0, 2 * pi)
             x, y = 400 + 100 * cos(angle), 400 + 100 * sin(angle)
             ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 12))

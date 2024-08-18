@@ -79,11 +79,13 @@ class Timer:
     def ended(self) -> bool:
         return time.time() - self.start_time >= self.total_time
 
-    def ended_and_reset(self) -> bool:
-        if self.ended:
-            self.reset()
-            return True
-        return False
+    def ended_and_reset(self) -> int:
+        # If the timer has ended, return how many times it has ended since the last call, and reset the timer.
+        if self.ended():
+            ended = floor((time.time() - self.start_time) / self.total_time)
+            self.start_time += ended * self.total_time
+            return ended
+        return 0
 
     def reset(self) -> None:
         self.start_time = time.time()
