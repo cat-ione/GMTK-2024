@@ -10,7 +10,7 @@ from src.utils import Timer
 import src.assets as assets
 
 from random import randint, uniform
-from math import pi, cos, sin, exp
+from math import cos, sin, exp2, pi
 import pygame
 
 class MainScene(Scene):
@@ -23,14 +23,17 @@ class MainScene(Scene):
 
         self.blobs = []
         self.blob_count = 0
-        self.main_blob = Blob(self, (400, 400), 20)
-        self.blob_timer = Timer(lambda r: 4 / r if r < 100 else 1 / r, self.main_blob.radius)
+        self.linear_radius = 4
+        self.radius = exp2(self.linear_radius)
+        self.main_blob = Blob(self, (400, 400), self.radius)
+        self.blob_timer = Timer(lambda r: 4 / r if r < 80 else 1 / r, self.main_blob.radius)
 
         self.fractal_shader = Shader(game.window, "assets/shaders/fractal.frag")
         self.fractal_texture = Texture(game.window, assets.noise_image, self.fractal_shader)
         self.fractal_post_shader = Shader(game.window, "assets/shaders/fractal_post.frag")
         surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
         self.fractal_post_texture = Texture(game.window, surf, self.fractal_post_shader)
+        self.zoom = 0
 
     def update(self, dt: float) -> None:
         r = self.main_blob.radius
@@ -39,13 +42,16 @@ class MainScene(Scene):
             x, y = 400 + max(0, r - 50) * cos(angle), 400 + max(0, r - 50) * sin(angle)
             ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 12))
 
-        self.main_blob.radius *= 1.0025 ** dt
+        self.linear_radius += 0.03 * dt
+        self.radius = exp2(self.linear_radius)
+        self.main_blob.radius = self.radius / exp2(self.zoom)
+        if self.linear_radius > 7.8 and self.linear_radius < 50:
+            self.zoom += 0.03 * dt
 
         self.blob_shader.send("u_metaballCount", self.blob_count)
         self.blob_shader.send("u_metaballs", [self.blobs[i].data if i < len(self.blobs) else (0, 0, 0) for i in range(500)])
 
-        self.fractal_shader.send("u_time", pygame.time.get_ticks() / 1000)
-        self.fractal_shader.send("u_zoomFactor", self.fractal_shader.get("u_zoomFactor") + 0.0002 * dt)
+        self.fractal_shader.send("u_zoom", self.zoom)
 
         self.sprite_manager.update(dt)
 

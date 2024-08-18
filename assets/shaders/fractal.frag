@@ -2,20 +2,20 @@
 
 uniform sampler2D u_imageTexture;
 uniform vec2 u_texSize;
-uniform float u_time;
-uniform float u_zoomFactor;
+uniform float u_zoom;
 
 in vec2 fragmentTexCoord;
 
 out vec4 color;
 
 vec2 pixel = 1.0 / u_texSize;
+float zoom = u_zoom;
 
 void main() {
     color = vec4(0.0, 0.0, 0.0, 1.0);
     float n = 8.0;
     for (int i = 0; i < n; i++) {
-        float progress = mod(u_time * u_zoomFactor + i, n);
+        float progress = mod(zoom + i, n);
         float scale = exp2(progress);
         vec2 centeredCoord = (fragmentTexCoord - 0.5) * scale + 0.5;
         vec4 texColor = texture(u_imageTexture, fract(centeredCoord));
