@@ -71,25 +71,26 @@ class Vec(Vector2, metaclass=multimeta):
         return tuple(self).__hash__()
 
 class Timer:
-    def __init__(self, time_func: Callable[[], float]) -> None:
+    def __init__(self, time_func: Callable[[], float], *args, **kwargs) -> None:
         self.time_func = time_func
-        self.total_time = time_func()
+        self.total_time = time_func(*args, **kwargs)
         self.start_time = time.time()
 
     def ended(self) -> bool:
         return time.time() - self.start_time >= self.total_time
 
-    def ended_and_reset(self) -> int:
+    def ended_and_reset(self, *args, **kwargs) -> int:
         # If the timer has ended, return how many times it has ended since the last call, and reset the timer.
         if self.ended():
             ended = floor((time.time() - self.start_time) / self.total_time)
             self.start_time += ended * self.total_time
+            self.total_time = self.time_func(*args, **kwargs)
             return ended
         return 0
 
-    def reset(self) -> None:
+    def reset(self, *args, **kwargs) -> None:
         self.start_time = time.time()
-        self.total_time = self.time_func()
+        self.total_time = self.time_func(*args, **kwargs)
 
     @property
     def progress(self) -> float:

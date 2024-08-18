@@ -21,14 +21,11 @@ void main() {
         sum += pow(u_metaballs[i].z, 2) / (pow(coord.x - metaball.x, 2) + pow(coord.y - metaball.y, 2));
     }
 
-    color = vec4(0.0, 0.0, 0.0, 1.0);
+    color = vec4(0.0, 0.0, 0.0, 0.0);
     if (sum > 1.0) {
         color = vec4(0.0, 0.0, 0.0, 1.0);
-    } else if (sum > 0.95) {
-        float c = (1.0 - sum) * 1.2;
-        color = vec4(c, c, c, 1.0);
     } else if (sum > 0.5) {
         float c = (sum - 0.5) * 0.12;
-        color = vec4(c, c, c, 1.0);
+        color = vec4(1.0, 1.0, 1.0, c);
     }
 }

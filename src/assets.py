@@ -14,6 +14,6 @@ class SpriteSheet(list):
 pygame.display.set_mode((1, 1), pygame.NOFRAME)
 
 # Load images
-
+noise_image = load_image("noise.png")
 
 pygame.display.quit()
