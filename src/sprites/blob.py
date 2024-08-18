@@ -51,6 +51,11 @@ class ParticleBlob(Blob):
             self.radius = self.target_radius
         self.target_radius = self.max_radius * (1 - self.timer.progress)
 
+        if not (-self.radius < self.pos.x < self.scene.game.window.size[0] + self.radius \
+                and -self.radius < self.pos.y < self.scene.game.window.size[1] + self.radius):
+            self.scene.remove_blob(self)
+            return
+
         if self.timer.ended():
             self.scene.remove_blob(self)
 
