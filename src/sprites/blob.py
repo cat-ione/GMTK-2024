@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.core.game import MainScene
+    from src.core.game import Level
 
 from src.core.render_layer import Layer
 from src.core.sprite import Sprite
@@ -12,11 +12,12 @@ from random import uniform
 import pygame
 
 class Blob(Sprite):
-    def __init__(self, scene: Scene, pos: tuple[int, int], radius: int) -> None:
+    def __init__(self, scene: Scene, pos: tuple[int, int], radius: int, antiball: bool = False) -> None:
         super().__init__(scene, Layer.BLOB)
-        self.scene: MainScene
+        self.scene: Level
         self.pos = Vec(pos)
         self.radius = radius
+        self.antiball = antiball
 
         self.scene.add_blob(self)
 
@@ -33,7 +34,7 @@ class Blob(Sprite):
 class ParticleBlob(Blob):
     def __init__(self, scene: Scene, pos: tuple[int, int], vel: tuple[float, float], radius: int) -> None:
         super().__init__(scene, pos, radius)
-        self.scene: MainScene
+        self.scene: Level
         self.pos = Vec(pos)
         self.vel = Vec(vel)
         self.max_radius = radius
@@ -57,6 +58,24 @@ class ParticleBlob(Blob):
             return
 
         if self.timer.ended():
+            self.scene.remove_blob(self)
+
+    def draw(self, screen: pygame.Surface) -> None:
+        pass
+
+    @property
+    def data(self) -> tuple[int, int, int]:
+        return self.pos.x, self.pos.y, self.radius
+
+class DragInducedBlob(Blob):
+    def __init__(self, scene: Scene, pos: tuple[int, int], radius: int) -> None:
+        super().__init__(scene, pos, radius)
+        self.dragging = True
+
+    def update(self, dt: float) -> None:
+        if self.dragging: return
+        self.radius -= 2.0 * dt
+        if self.radius <= 0:
             self.scene.remove_blob(self)
 
     def draw(self, screen: pygame.Surface) -> None:

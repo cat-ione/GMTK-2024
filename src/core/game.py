@@ -1,5 +1,5 @@
-from src.scenes.main_scene import MainScene
 from src.core.glpg import Window, Texture
+from src.scenes.level import Level1
 from src.core.scene import Scene
 
 from pygame.locals import QUIT, SRCALPHA
@@ -21,7 +21,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.dt = self.clock.tick(60) * 0.05
-        self.scene = MainScene(self)
+        self.scene = Level1(self)
 
     def run(self) -> None:
         while True:

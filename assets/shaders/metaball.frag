@@ -1,7 +1,9 @@
 #version 330 core
 
 uniform int u_metaballCount;
-uniform vec3[500] u_metaballs;
+uniform vec3[1000] u_metaballs;
+uniform int u_antiballCount;
+uniform vec3[200] u_antiballs;
 uniform sampler2D u_imageTexture;
 uniform vec2 u_texSize;
 
@@ -19,6 +21,11 @@ void main() {
     for (int i = 0; i < u_metaballCount; i++) {
         vec2 metaball = u_metaballs[i].xy;
         sum += pow(u_metaballs[i].z, 2) / (pow(coord.x - metaball.x, 2) + pow(coord.y - metaball.y, 2));
+    }
+
+    for (int i = 0; i < u_antiballCount; i++) {
+        vec2 antiball = u_antiballs[i].xy;
+        sum -= pow(u_antiballs[i].z, 2) / (pow(coord.x - antiball.x, 2) + pow(coord.y - antiball.y, 2));
     }
 
     color = vec4(0.0, 0.0, 0.0, 0.0);

@@ -75,11 +75,18 @@ class Timer:
         self.time_func = time_func
         self.total_time = time_func(*args, **kwargs)
         self.start_time = time.time()
+        self.started = False
+
+    def start(self) -> None:
+        if self.started: return
+        self.start_time = time.time()
+        self.started = True
 
     def ended(self) -> bool:
-        return time.time() - self.start_time >= self.total_time
+        return time.time() - self.start_time >= self.total_time and self.started
 
     def ended_and_reset(self, *args, **kwargs) -> int:
+        if not self.started: return 0
         # If the timer has ended, return how many times it has ended since the last call, and reset the timer.
         if self.ended():
             ended = floor((time.time() - self.start_time) / self.total_time)
