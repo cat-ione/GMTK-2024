@@ -27,8 +27,8 @@ void main() {
     if (color.x < 0.21) {
         color = vec4(0.0, 0.0, 0.0, 1.0);
     } else if (color.x < 0.24) {
-        color = vec4(0.030, 0.030, 0.030, 1.0);
+        color = vec4(0.06, 0.06, 0.06, 1.0);
     } else {
-        color = vec4(0.012, 0.012, 0.012, 1.0);
+        color = vec4(0.03, 0.03, 0.03, 1.0);
     }
 }
