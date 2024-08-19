@@ -8,7 +8,7 @@ from src.core.sprite import Sprite
 from src.core.scene import Scene
 from src.utils import Vec, Timer
 
-from random import uniform
+from random import uniform, randint
 import pygame
 
 class Blob(Sprite):
@@ -61,13 +61,6 @@ class ParticleBlob(Blob):
         if self.timer.ended():
             self.scene.remove_blob(self)
 
-    def draw(self, screen: pygame.Surface) -> None:
-        pass
-
-    @property
-    def data(self) -> tuple[int, int, int]:
-        return self.pos.x, self.pos.y, self.radius
-
 class DragInducedBlob(Blob):
     def __init__(self, scene: Scene, pos: tuple[int, int], radius: int) -> None:
         super().__init__(scene, pos, radius)
@@ -79,9 +72,35 @@ class DragInducedBlob(Blob):
         if self.radius <= 0:
             self.scene.remove_blob(self)
 
-    def draw(self, screen: pygame.Surface) -> None:
-        pass
+class BulletBLob(Blob):
+    def __init__(self, scene: Scene, pos: tuple[int, int], vel: tuple[float, float]) -> None:
+        super().__init__(scene, pos, randint(15, 25))
+        self.scene: Level
+        self.vel = Vec(vel)
+        self.has_captured = False
+        self.capture_timer = Timer(lambda: 5.0)
 
-    @property
-    def data(self) -> tuple[int, int, int]:
-        return self.pos.x, self.pos.y, self.radius
+    def update(self, dt: float) -> None:
+        self.pos += self.vel * dt
+
+        if self.has_captured:
+            mpos = Vec(pygame.mouse.get_pos())
+            pygame.mouse.set_pos(mpos + (self.pos - mpos) * 0.01)
+            self.vel -= (self.pos - Vec(400, 400)) * 0.02 * dt
+            self.vel *= 0.95
+            if self.capture_timer.ended():
+                self.scene.remove_blob(self)
+                self.scene.captured = False
+                self.scene.invulnerable_timer.reset()
+                return
+
+        if self.pos.distance_to(pygame.mouse.get_pos()) < self.radius and not self.has_captured \
+            and self.pos.distance_to(Vec(400, 400)) > self.scene.main_blob.radius \
+                and self.scene.invulnerable_timer.ended():
+            self.has_captured = True
+            self.scene.captured = True
+            self.capture_timer.start()
+
+        if not (-self.radius < self.pos.x < self.scene.game.window.size[0] + self.radius \
+                and -self.radius < self.pos.y < self.scene.game.window.size[1] + self.radius):
+            self.scene.remove_blob(self)

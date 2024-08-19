@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.core.game import Game
 
-from src.sprites.blob import Blob, ParticleBlob, DragInducedBlob
+from src.sprites.blob import Blob, ParticleBlob, DragInducedBlob, BulletBLob
 from src.core.glpg import Texture, Shader
 from src.core.scene import Scene
 from src.utils import Timer, Vec
@@ -44,6 +44,12 @@ class Level(Scene):
         self.zoom = 0
         self.zoom_speed = 0
 
+        self.bullet_timer = Timer(lambda r: 27 / r, self.main_blob.radius)
+        self.bullet_timer.start()
+        self.captured = False
+        self.invulnerable_timer = Timer(lambda: 1.0)
+        self.invulnerable_timer.start()
+
         self.texture: Texture = None
 
         self.win_end_timer = Timer(lambda: 3.0)
@@ -54,16 +60,23 @@ class Level(Scene):
         for _ in range(self.blob_timer.ended_and_reset(r)):
             angle = uniform(0, 2 * pi)
             x, y = 400 + max(0, r - 50) * cos(angle), 400 + max(0, r - 50) * sin(angle)
-            ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 12))
+            ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 10))
 
         self.linear_radius += self.expand_speed * dt
         self.radius = exp2(self.linear_radius)
         self.main_blob.radius = self.radius / exp2(self.zoom)
         if self.linear_radius > 50:
             self.zoom_speed *= 0.9995
-        elif self.linear_radius > 7.5:
+        elif self.linear_radius > 7.4:
             self.zoom_speed += (self.expand_speed - self.zoom_speed) * 0.02
         self.zoom += self.zoom_speed * dt
+
+        if self.bullet_timer.ended_and_reset(r):
+            BulletBLob(self, (400, 400), (cos(uniform(0, 2 * pi)) * 5, sin(uniform(0, 2 * pi)) * 5))
+
+        mpos = Vec(pygame.mouse.get_pos())
+        if mpos.distance_to((400, 400)) < self.main_blob.radius and not self.captured:
+            pygame.mouse.set_pos(mpos - (Vec(400, 400) - mpos) * 0.05)
 
         if self.main_blob.radius > 600:
             self.lost_end_timer.start()
@@ -117,12 +130,19 @@ class Level1(Level):
         self.texture = Texture(game.window, self.surface)
         self.covered_angles = {i: 0 for i in range(-180, 180, 15)}
         self.angle_coverage = 0
+        self.current_ink = None
 
     def update(self, dt: float) -> None:
         super().update(dt)
+        if self.captured:
+            if self.current_ink is not None:
+                self.remove(self.current_ink)
+                self.current_ink = None
+            return
 
         if self.game.events.get(pygame.MOUSEBUTTONDOWN):
-            self.add(Ink(self))
+            self.current_ink = Ink(self)
+            self.add(self.current_ink)
         if all([val > self.angle_coverage // 24 for val in self.covered_angles.values()]):
             self.angle_coverage = sum(self.covered_angles.values())
             self.expand_speed = self.orig_expand_speed * 0.25 * (4 - self.angle_coverage // 24)
