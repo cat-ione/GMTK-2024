@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.core.game import Game
 
-from src.sprites.blob import Blob, ParticleBlob, DragInducedBlob, BulletBLob
+from src.sprites.blob import Blob, ParticleBlob, DragInducedBlob, BulletBlob, DragInducedAntiBlob
 from src.core.glpg import Texture, Shader
 from src.core.scene import Scene
 from src.utils import Timer, Vec
@@ -67,16 +67,13 @@ class Level(Scene):
         self.main_blob.radius = self.radius / exp2(self.zoom)
         if self.linear_radius > 50:
             self.zoom_speed *= 0.9995
-        elif self.linear_radius > 7.4:
+        elif self.linear_radius > 7.2:
             self.zoom_speed += (self.expand_speed - self.zoom_speed) * 0.02
         self.zoom += self.zoom_speed * dt
 
-        if self.bullet_timer.ended_and_reset(r):
-            BulletBLob(self, (400, 400), (cos(uniform(0, 2 * pi)) * 5, sin(uniform(0, 2 * pi)) * 5))
+        self.summon_bullets()
 
-        mpos = Vec(pygame.mouse.get_pos())
-        if mpos.distance_to((400, 400)) < self.main_blob.radius and not self.captured:
-            pygame.mouse.set_pos(mpos - (Vec(400, 400) - mpos) * 0.05)
+        self.keep_out_of_main_blob()
 
         if self.main_blob.radius > 600:
             self.lost_end_timer.start()
@@ -96,6 +93,16 @@ class Level(Scene):
             self.game.change_scene(levels[levels.index(self.__class__) + 1](self.game))
         if self.lost_end_timer.ended():
             self.game.change_scene(levels[levels.index(self.__class__)](self.game))
+
+    def summon_bullets(self) -> None:
+        if self.bullet_timer.ended_and_reset(self.main_blob.radius):
+            angle = uniform(0, 2 * pi)
+            BulletBlob(self, (cos(angle) * 600 + 400, sin(angle) * 600 + 400))
+
+    def keep_out_of_main_blob(self) -> None:
+        mpos = Vec(pygame.mouse.get_pos())
+        if mpos.distance_to((400, 400)) < self.main_blob.radius and not self.captured:
+            pygame.mouse.set_pos(mpos - (Vec(400, 400) - mpos) * 0.05)
 
     def draw(self, screen: pygame.Surface) -> None:
         self.fractal_post_texture.blit(self.fractal_texture, (0, 0))
@@ -167,6 +174,9 @@ class Level2(Level):
 
     def update(self, dt: float) -> None:
         super().update(dt)
+        if self.captured:
+            self.dragging = False
+            return
 
         mpos = Vec(pygame.mouse.get_pos())
         dist = sqrt((mpos.x - 400) ** 2 + (mpos.y - 400) ** 2)
@@ -182,7 +192,7 @@ class Level2(Level):
                 self.start_drag = Vec(mpos)
                 self.current_blob = DragInducedBlob(self, mpos, 0)
                 self.drag_induced_blobs.append(self.current_blob)
-                self.current_anti = Blob(self, mpos, 0, antiball=True)
+                self.current_anti = DragInducedAntiBlob(self, mpos, 0)
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
@@ -197,6 +207,7 @@ class Level2(Level):
                     self.drag_induced_blobs.remove(self.current_blob)
                     self.current_blob = None
                     self.expand_speed -= self.current_anti.radius * 0.0001
+                    self.current_anti.dragging = False
 
         if self.dragging:
             self.figure_out_angle(angle)
@@ -204,9 +215,13 @@ class Level2(Level):
             dist1 = mpos.distance_to((400, 400))
             dist2 = self.start_drag.distance_to((400, 400))
             if dist1 < dist2: # drag in
-                self.current_anti.radius = dist2 - dist1
+                self.current_anti.radius = (dist2 - dist1) * 0.5
             elif dist1 > dist2: # drag out
                 self.current_blob.radius = dist1 - dist2
+
+    def keep_out_of_main_blob(self) -> None:
+        # Don't keep out
+        pass
 
     def figure_out_angle(self, angle: float) -> None:
         if angle < -157.5:

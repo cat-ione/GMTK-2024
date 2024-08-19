@@ -9,6 +9,7 @@ from src.core.scene import Scene
 from src.utils import Vec, Timer
 
 from random import uniform, randint
+from math import exp2
 import pygame
 
 class Blob(Sprite):
@@ -72,22 +73,38 @@ class DragInducedBlob(Blob):
         if self.radius <= 0:
             self.scene.remove_blob(self)
 
-class BulletBLob(Blob):
-    def __init__(self, scene: Scene, pos: tuple[int, int], vel: tuple[float, float]) -> None:
+class DragInducedAntiBlob(Blob):
+    def __init__(self, scene: Scene, pos: tuple[int, int], radius: int) -> None:
+        super().__init__(scene, pos, radius, antiball=True)
+        self.dragging = True
+
+    def update(self, dt: float) -> None:
+        if self.dragging: return
+        self.radius -= 0.04 * dt
+        self.scene.expand_speed += 0.000005 * dt
+        if self.radius <= 0:
+            self.scene.remove_blob(self)
+
+class BulletBlob(Blob):
+    def __init__(self, scene: Scene, pos: tuple[int, int]) -> None:
         super().__init__(scene, pos, randint(15, 25))
         self.scene: Level
-        self.vel = Vec(vel)
+        self.orig_offset = Vec(pos) - Vec(400, 400)
+        self.direction = (Vec(400, 400) - Vec(pos)).normalize()
+        self.linear_scale = 0
+        self.scale = exp2(self.linear_scale)
         self.has_captured = False
         self.capture_timer = Timer(lambda: 5.0)
 
     def update(self, dt: float) -> None:
-        self.pos += self.vel * dt
+        self.linear_scale -= self.scene.zoom_speed * dt
+        self.scale = exp2(self.linear_scale)
+        self.pos = Vec(400, 400) + self.orig_offset * self.scale
 
         if self.has_captured:
             mpos = Vec(pygame.mouse.get_pos())
-            pygame.mouse.set_pos(mpos + (self.pos - mpos) * 0.01)
-            self.vel -= (self.pos - Vec(400, 400)) * 0.02 * dt
-            self.vel *= 0.95
+            pygame.mouse.set_pos(mpos + (self.pos - mpos) * 0.1)
+            self.linear_scale -= 0.08 * dt
             if self.capture_timer.ended():
                 self.scene.remove_blob(self)
                 self.scene.captured = False
@@ -95,12 +112,11 @@ class BulletBLob(Blob):
                 return
 
         if self.pos.distance_to(pygame.mouse.get_pos()) < self.radius and not self.has_captured \
-            and self.pos.distance_to(Vec(400, 400)) > self.scene.main_blob.radius \
+            and self.pos.distance_to(Vec(400, 400)) > self.scene.main_blob.radius / 2 \
                 and self.scene.invulnerable_timer.ended():
             self.has_captured = True
             self.scene.captured = True
             self.capture_timer.start()
 
-        if not (-self.radius < self.pos.x < self.scene.game.window.size[0] + self.radius \
-                and -self.radius < self.pos.y < self.scene.game.window.size[1] + self.radius):
+        if self.pos.distance_to((400, 400)) < self.scene.main_blob.radius / 2 and not self.has_captured:
             self.scene.remove_blob(self)
