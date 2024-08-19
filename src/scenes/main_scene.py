@@ -23,6 +23,7 @@ class MainScene(Scene):
 
         self.blobs = []
         self.blob_count = 0
+        self.expand_speed = 0.03
         self.linear_radius = 4
         self.radius = exp2(self.linear_radius)
         self.main_blob = Blob(self, (400, 400), self.radius)
@@ -34,6 +35,7 @@ class MainScene(Scene):
         surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
         self.fractal_post_texture = Texture(game.window, surf, self.fractal_post_shader)
         self.zoom = 0
+        self.zoom_speed = 0
 
     def update(self, dt: float) -> None:
         r = self.main_blob.radius
@@ -42,11 +44,14 @@ class MainScene(Scene):
             x, y = 400 + max(0, r - 50) * cos(angle), 400 + max(0, r - 50) * sin(angle)
             ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 12))
 
-        self.linear_radius += 0.03 * dt
+        self.linear_radius += self.expand_speed * dt
         self.radius = exp2(self.linear_radius)
         self.main_blob.radius = self.radius / exp2(self.zoom)
-        if self.linear_radius > 7.8 and self.linear_radius < 50:
-            self.zoom += 0.03 * dt
+        if self.linear_radius > 50:
+            self.zoom_speed *= 0.9995
+        elif self.linear_radius > 7.5:
+            self.zoom_speed += (self.expand_speed - self.zoom_speed) * 0.02
+        self.zoom += self.zoom_speed * dt
 
         self.blob_shader.send("u_metaballCount", self.blob_count)
         self.blob_shader.send("u_metaballs", [self.blobs[i].data if i < len(self.blobs) else (0, 0, 0) for i in range(500)])
