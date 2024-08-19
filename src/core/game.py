@@ -35,7 +35,7 @@ class Game:
 
             self.scene.draw(self.screen)
             # self.texture.update(self.screen)
-            # self.window.blit(self.texture, (0, 0))
+            self.window.blit(self.texture, (0, 0))
             pygame.display.flip()
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps():.0f}")

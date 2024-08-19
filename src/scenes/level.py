@@ -107,10 +107,10 @@ class Level(Scene):
 
     def draw(self, screen: pygame.Surface) -> None:
         self.fractal_post_texture.blit(self.fractal_texture, (0, 0))
-        self.game.window.blit(self.fractal_post_texture, (0, 0))
+        self.game.texture.blit(self.fractal_post_texture, (0, 0))
         if self.texture is not None:
-            self.game.window.blit(self.texture, (0, 0))
-        self.game.window.blit(self.blob_texture, (0, 0))
+            self.game.texture.blit(self.texture, (0, 0))
+        self.game.texture.blit(self.blob_texture, (0, 0))
 
     def add_blob(self, blob: Blob) -> None:
         if blob.antiball:
