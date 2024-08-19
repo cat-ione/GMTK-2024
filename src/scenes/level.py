@@ -7,6 +7,7 @@ from src.sprites.blob import Blob, ParticleBlob, DragInducedBlob
 from src.core.glpg import Texture, Shader
 from src.core.scene import Scene
 from src.utils import Timer, Vec
+from src.sprites.ink import Ink
 import src.assets as assets
 
 from math import cos, sin, exp2, pi, atan2, sqrt, degrees
@@ -16,6 +17,7 @@ import pygame
 class Level(Scene):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
         self.blob_shader = Shader(game.window, "assets/shaders/metaball.frag")
         surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
@@ -23,7 +25,8 @@ class Level(Scene):
 
         self.blobs = []
         self.blob_count = 0
-        self.expand_speed = 0.03
+        self.orig_expand_speed = 0.03
+        self.expand_speed = self.orig_expand_speed
         self.linear_radius = 4
         self.radius = exp2(self.linear_radius)
         self.main_blob = Blob(self, (400, 400), self.radius)
@@ -40,6 +43,8 @@ class Level(Scene):
         self.fractal_post_texture = Texture(game.window, surf, self.fractal_post_shader)
         self.zoom = 0
         self.zoom_speed = 0
+
+        self.texture: Texture = None
 
         self.win_end_timer = Timer(lambda: 3.0)
         self.lost_end_timer = Timer(lambda: 3.0)
@@ -82,10 +87,9 @@ class Level(Scene):
     def draw(self, screen: pygame.Surface) -> None:
         self.fractal_post_texture.blit(self.fractal_texture, (0, 0))
         self.game.window.blit(self.fractal_post_texture, (0, 0))
-        if hasattr(self, "texture"):
+        if self.texture is not None:
             self.game.window.blit(self.texture, (0, 0))
         self.game.window.blit(self.blob_texture, (0, 0))
-        self.sprite_manager.draw(screen)
 
     def add_blob(self, blob: Blob) -> None:
         if blob.antiball:
@@ -109,16 +113,29 @@ class Level1(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
 
+        self.surface = pygame.Surface(game.window.size, pygame.SRCALPHA)
+        self.texture = Texture(game.window, self.surface)
+        self.covered_angles = {i: 0 for i in range(-180, 180, 15)}
+        self.angle_coverage = 0
+
     def update(self, dt: float) -> None:
         super().update(dt)
+
+        if self.game.events.get(pygame.MOUSEBUTTONDOWN):
+            self.add(Ink(self))
+        if all([val > self.angle_coverage // 24 for val in self.covered_angles.values()]):
+            self.angle_coverage = sum(self.covered_angles.values())
+            self.expand_speed = self.orig_expand_speed * 0.25 * (4 - self.angle_coverage // 24)
+
+    def draw(self, screen: pygame.Surface) -> None:
+        self.surface.fill((0, 0, 0, 0))
+        self.sprite_manager.draw(self.surface)
+        self.texture.update(self.surface)
+        super().draw(screen)
 
 class Level2(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
-
-        surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
-        surf.fill((0, 0, 0, 100))
-        self.texture = Texture(game.window, surf)
 
         self.dragging = False
         self.start_drag = Vec(0, 0)
