@@ -61,7 +61,7 @@ class Ink(Sprite):
         self.settled = True
         for point in self.points:
             offset = point * self.scale
-            min_offset = self.scene.main_blob.radius + 33 + self.present_coverage // 24 * 8
+            min_offset = self.scene.main_blob.radius * 1.25 + self.present_coverage // 24 * 8
             if offset.length() > min_offset:
                 self.settled = False
             else:

@@ -134,7 +134,7 @@ class Level1(Level):
         super().__init__(game)
 
         self.surface = pygame.Surface(game.window.size, pygame.SRCALPHA)
-        self.texture = Texture(game.window, self.surface)
+        self.texture = Texture(game.window, self.surface, Shader(game.window, "assets/shaders/ink.frag"))
         self.covered_angles = {i: 0 for i in range(-180, 180, 15)}
         self.angle_coverage = 0
         self.current_ink = None
@@ -142,7 +142,7 @@ class Level1(Level):
     def update(self, dt: float) -> None:
         super().update(dt)
         if self.captured:
-            if self.current_ink is not None:
+            if self.current_ink is not None and self.current_ink.drawing:
                 self.remove(self.current_ink)
                 self.current_ink = None
             return
