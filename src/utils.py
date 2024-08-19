@@ -71,7 +71,7 @@ class Vec(Vector2, metaclass=multimeta):
         return tuple(self).__hash__()
 
 class Timer:
-    def __init__(self, time_func: Callable[[], float], *args, **kwargs) -> None:
+    def __init__(self, time_func: Callable[..., float], *args, **kwargs) -> None:
         self.time_func = time_func
         self.total_time = time_func(*args, **kwargs)
         self.start_time = time.time()

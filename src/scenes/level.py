@@ -27,7 +27,8 @@ class Level(Scene):
         self.linear_radius = 4
         self.radius = exp2(self.linear_radius)
         self.main_blob = Blob(self, (400, 400), self.radius)
-        self.blob_timer = Timer(lambda r: 4 / r if r < 80 else 1 / r, self.main_blob.radius)
+        self.blob_timer = Timer(lambda r: 6 / r if r < 80 else 1 / r, self.main_blob.radius)
+        self.blob_timer.start()
 
         self.antiballs = []
         self.antiball_count = 0
@@ -108,6 +109,13 @@ class Level1(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
 
+    def update(self, dt: float) -> None:
+        super().update(dt)
+
+class Level2(Level):
+    def __init__(self, game: Game) -> None:
+        super().__init__(game)
+
         surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
         surf.fill((0, 0, 0, 100))
         self.texture = Texture(game.window, surf)
@@ -182,14 +190,6 @@ class Level1(Level):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENESW)
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
-
-class Level2(Level):
-    def __init__(self, game: Game) -> None:
-        super().__init__(game)
-        print("Level 2")
-
-    def update(self, dt: float) -> None:
-        super().update(dt)
 
 class Level3(Level):
     def __init__(self, game: Game) -> None:

@@ -41,6 +41,7 @@ class ParticleBlob(Blob):
         self.target_radius = radius
         self.radius = 0
         self.timer = Timer(lambda: uniform(1.2, 1.6))
+        self.timer.start()
 
         self.scene.add_blob(self)
 
