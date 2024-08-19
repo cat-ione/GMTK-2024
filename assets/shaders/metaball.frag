@@ -1,9 +1,9 @@
 #version 330 core
 
 uniform int u_metaballCount;
-uniform vec3[1000] u_metaballs;
+uniform vec3[400] u_metaballs;
 uniform int u_antiballCount;
-uniform vec3[200] u_antiballs;
+uniform vec3[100] u_antiballs;
 uniform sampler2D u_imageTexture;
 uniform vec2 u_texSize;
 

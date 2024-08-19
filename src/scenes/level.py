@@ -30,7 +30,7 @@ class Level(Scene):
         self.linear_radius = 4
         self.radius = exp2(self.linear_radius)
         self.main_blob = Blob(self, (400, 400), self.radius)
-        self.blob_timer = Timer(lambda r: 6 / r if r < 80 else 1 / r, self.main_blob.radius)
+        self.blob_timer = Timer(lambda r: 6 / r if r < 80 else 2.5 / r, self.main_blob.radius)
         self.blob_timer.start()
 
         self.antiballs = []
@@ -56,10 +56,11 @@ class Level(Scene):
         self.lost_end_timer = Timer(lambda: 3.0)
 
     def update(self, dt: float) -> None:
+        print(self.blob_count)
         r = self.main_blob.radius
         for _ in range(self.blob_timer.ended_and_reset(r)):
             angle = uniform(0, 2 * pi)
-            x, y = 400 + max(0, r - 50) * cos(angle), 400 + max(0, r - 50) * sin(angle)
+            x, y = 400 + max(0, r - 20) * cos(angle), 400 + max(0, r - 20) * sin(angle)
             ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 10))
 
         self.linear_radius += self.expand_speed * dt
@@ -81,9 +82,9 @@ class Level(Scene):
             self.win_end_timer.start()
 
         self.blob_shader.send("u_metaballCount", self.blob_count)
-        self.blob_shader.send("u_metaballs", [self.blobs[i].data if i < len(self.blobs) else (0, 0, 0) for i in range(1000)])
+        self.blob_shader.send("u_metaballs", [self.blobs[i].data if i < len(self.blobs) else (0, 0, 0) for i in range(400)])
         self.blob_shader.send("u_antiballCount", self.antiball_count)
-        self.blob_shader.send("u_antiballs", [self.antiballs[i].data if i < len(self.antiballs) else (0, 0, 0) for i in range(200)])
+        self.blob_shader.send("u_antiballs", [self.antiballs[i].data if i < len(self.antiballs) else (0, 0, 0) for i in range(100)])
 
         self.fractal_shader.send("u_zoom", self.zoom)
 
