@@ -20,4 +20,13 @@ noise_image = load_image("noise.png")
 # Load fonts
 fonts = [pygame.font.SysFont("bahnschrift", size) for size in range(0, 200)]
 
+# Load sounds
+pygame.mixer.pre_init(44100, -16, 2, 32)
+pygame.init()
+pygame.mixer.quit()
+pygame.mixer.init(22050, -16, 2, 32)
+
+pygame.mixer.music.load(pathof("assets/sounds/noise.mp3"))
+pin_hit = pygame.mixer.Sound(pathof("assets/sounds/pin_hit.wav"))
+
 pygame.display.quit()

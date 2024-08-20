@@ -2,6 +2,7 @@ from src.core.render_layer import Layer
 from src.core.sprite import Sprite
 from src.core.scene import Scene
 from src.utils import Vec, Timer
+import src.assets as assets
 
 from random import uniform, randint
 import pygame
@@ -26,6 +27,8 @@ class Pin(Sprite):
         if self.pos.distance_to(Vec(400, 400)) < self.scene.main_blob.radius:
             self.pos = Vec(400, 400) + (self.pos - Vec(400, 400)).normalize() * self.scene.main_blob.radius
             self.held = False
+            if self.settled == False:
+                assets.pin_hit.play()
             self.settled = True
 
         self.pos2 = self.pos - (Vec(400, 400) - self.pos).normalize() * 80
