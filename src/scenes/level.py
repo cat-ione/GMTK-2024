@@ -109,6 +109,8 @@ class Level(Scene):
             self.lost_end_timer.start()
             self.invulnerable_timer.reset()
         elif self.expand_speed <= 0:
+            if not self.win_end_timer.started:
+                assets.win_sound.play()
             self.win_end_timer.start()
             self.invulnerable_timer.reset()
             pygame.mixer.music.fadeout(4500)
