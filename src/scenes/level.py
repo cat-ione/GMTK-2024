@@ -60,12 +60,26 @@ class Level(Scene):
         self.level_alpha = 1
 
     def update(self, dt: float) -> None:
+        self.spawn_particles()
+
+        self.expand(dt)
+
+        self.summon_bullets()
+
+        self.keep_out_of_main_blob()
+
+        self.win_lost_detection()
+
+        self.other_stuff(dt)
+
+    def spawn_particles(self) -> None:
         r = self.main_blob.radius
         for _ in range(self.blob_timer.ended_and_reset(r)):
             angle = uniform(0, 2 * pi)
             x, y = 400 + max(0, r - 20) * cos(angle), 400 + max(0, r - 20) * sin(angle)
             ParticleBlob(self, (x, y), (cos(angle + randint(-10, 10)), sin(angle + randint(-10, 10))), randint(2, 10))
 
+    def expand(self, dt: float) -> None:
         self.linear_radius += self.expand_speed * dt
         self.radius = exp2(self.linear_radius)
         self.main_blob.radius = self.radius / exp2(self.zoom)
@@ -75,10 +89,17 @@ class Level(Scene):
             self.zoom_speed += (self.expand_speed - self.zoom_speed) * 0.02
         self.zoom += self.zoom_speed * dt
 
-        self.summon_bullets()
+    def summon_bullets(self) -> None:
+        if self.bullet_timer.ended_and_reset(self.main_blob.radius):
+            angle = uniform(0, 2 * pi)
+            BulletBlob(self, (cos(angle) * 600 + 400, sin(angle) * 600 + 400))
 
-        self.keep_out_of_main_blob()
+    def keep_out_of_main_blob(self) -> None:
+        mpos = Vec(pygame.mouse.get_pos())
+        if mpos.distance_to((400, 400)) < self.main_blob.radius and not self.captured:
+            pygame.mouse.set_pos(mpos - (Vec(400, 400) - mpos) * 0.05)
 
+    def win_lost_detection(self) -> None:
         if self.main_blob.radius > 600:
             self.lost_end_timer.start()
             self.invulnerable_timer.reset()
@@ -86,6 +107,7 @@ class Level(Scene):
             self.win_end_timer.start()
             self.invulnerable_timer.reset()
 
+    def other_stuff(self, dt: float) -> None:
         self.blob_shader.send("u_metaballCount", self.blob_count)
         self.blob_shader.send("u_metaballs", [self.blobs[i].data if i < len(self.blobs) else (0, 0, 0) for i in range(400)])
         self.blob_shader.send("u_antiballCount", self.antiball_count)
@@ -114,16 +136,6 @@ class Level(Scene):
                 self.game.change_scene(levels[levels.index(self.__class__)](self.game))
             elif self.game.events[pygame.KEYDOWN].key == pygame.K_ESCAPE:
                 self.game.change_scene("MainMenu")
-
-    def summon_bullets(self) -> None:
-        if self.bullet_timer.ended_and_reset(self.main_blob.radius):
-            angle = uniform(0, 2 * pi)
-            BulletBlob(self, (cos(angle) * 600 + 400, sin(angle) * 600 + 400))
-
-    def keep_out_of_main_blob(self) -> None:
-        mpos = Vec(pygame.mouse.get_pos())
-        if mpos.distance_to((400, 400)) < self.main_blob.radius and not self.captured:
-            pygame.mouse.set_pos(mpos - (Vec(400, 400) - mpos) * 0.05)
 
     def draw(self, screen: pygame.Surface) -> None:
         self.fractal_post_texture.blit(self.fractal_texture, (0, 0))
@@ -156,10 +168,97 @@ class Level(Scene):
 class Level1(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
-        print("Level 1")
+
+        self.prompt_index = 0
+        self.prompts = [
+            " ", # 0
+            "Hello?", # 1
+            "Is anyone there?", # 2
+            "Is this a dream...", # 3
+            "What's this...?", # 4
+            "Maybe I shouldn't touch it...", # 5
+            "Oh no, it's growing, I shouldn't have touched it...", # 6
+            "[DODGE INCOMING BLOBS WITH CURSOR]", # 7
+            "How do I make it stop?", # 8
+            "Guess I'm stuck here dodging until I figure that out...", # 9
+            " ", # 10
+            "Maybe I can try using some other buttons on my mouse...", # 11
+        ]
+        self.prompt_texture = Texture(game.window, assets.fonts[30].render(self.prompts[self.prompt_index], True, (222, 222, 222)))
+        self.prompt_timer = Timer(lambda: 4.0)
+        self.prompt_timer.start()
+
+        self.linear_radius = 0
+        self.radius = exp2(self.linear_radius)
+        self.main_blob.radius = self.radius
+        self.grow_timer = Timer(lambda: 1.2)
+        self.dodge_timer = Timer(lambda: 10)
 
     def update(self, dt: float) -> None:
-        super().update(dt)
+        if self.prompt_index > 3:
+            self.spawn_particles()
+
+        if self.prompt_index > 5 or (not self.grow_timer.ended() and self.grow_timer.started):
+            self.expand(dt)
+
+        if self.prompt_index == 5:
+            if Vec(pygame.mouse.get_pos()).distance_to((400, 400)) < self.main_blob.radius:
+                self.next_prompt()
+                self.prompt_timer.reset()
+
+        if self.prompt_index > 6:
+            self.summon_bullets()
+
+        if self.prompt_index > 5:
+            self.keep_out_of_main_blob()
+
+        if self.prompt_index == 7:
+            if self.captured:
+                self.dodge_timer.reset()
+            if self.dodge_timer.ended():
+                self.next_prompt()
+                self.prompt_timer.reset()
+
+        if self.prompt_index > 8:
+            self.win_lost_detection()
+
+        if self.prompt_index > 8:
+            if (event := self.game.events.get(pygame.MOUSEWHEEL)):
+                self.expand_speed += event.y * 0.0025
+
+        self.other_stuff(dt)
+
+        if self.prompt_timer.ended_and_reset() and self.prompt_index not in {5, 7} and not self.win_end_timer.started:
+            self.next_prompt()
+
+    def next_prompt(self) -> None:
+        self.prompt_index += 1
+        if self.prompt_index > len(self.prompts) - 1:
+            self.prompt_index = len(self.prompts) - 1
+        self.prompt_texture = Texture(self.game.window, assets.fonts[30].render(self.prompts[self.prompt_index], True, (222, 222, 222)))
+
+        if self.prompt_index == 4:
+            self.grow_timer.start()
+            self.linear_radius = 3
+            self.radius = exp2(self.linear_radius)
+            self.main_blob.radius = self.radius
+        elif self.prompt_index == 7:
+            self.dodge_timer.start()
+        elif self.prompt_index == 10:
+            self.prompt_timer = Timer(lambda: 20)
+            self.prompt_timer.start()
+
+    def expand(self, dt: float) -> None:
+        self.linear_radius += self.expand_speed * dt
+        self.radius = exp2(self.linear_radius)
+        self.main_blob.radius = self.radius / exp2(self.zoom)
+        if self.linear_radius > 7.2:
+            self.zoom_speed += (self.expand_speed - self.zoom_speed) * 0.02
+        self.zoom += self.zoom_speed * dt
+
+    def draw(self, screen: pygame.Surface) -> None:
+        super().draw(screen)
+        self.game.texture.blit(self.prompt_texture, (self.game.window.size[0] // 2 - self.prompt_texture.size[0] // 2, 50))
 
 class Level2(Level):
     def __init__(self, game: Game) -> None:
