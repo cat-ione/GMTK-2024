@@ -251,6 +251,8 @@ class Level1(Level):
 
         if assets.dialogue[self.prompt_index] is not None:
             assets.dialogue[self.prompt_index].play()
+            if assets.dialogue[self.prompt_index - 1] is not None:
+                assets.dialogue[self.prompt_index - 1].stop()
 
         if self.prompt_index == 4:
             self.grow_timer.start()
