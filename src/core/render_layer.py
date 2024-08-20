@@ -32,7 +32,10 @@ class RenderLayer:
         self.sprites.append(sprite)
 
     def remove(self, sprite: Sprite) -> None:
-        self.sprites.remove(sprite)
+        try:
+            self.sprites.remove(sprite)
+        except ValueError:
+            pass
 
     def bind(self, bottom: Sprite, top: Sprite) -> None:
         if top in self.bound_sprites:
