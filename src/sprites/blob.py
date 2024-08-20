@@ -7,6 +7,7 @@ from src.core.render_layer import Layer
 from src.core.sprite import Sprite
 from src.core.scene import Scene
 from src.utils import Vec, Timer
+import src.assets as assets
 
 from random import uniform, randint
 from math import exp2
@@ -110,10 +111,13 @@ class BulletBlob(Blob):
         self.pos = Vec(400, 400) + self.orig_offset * self.scale
 
         if self.has_captured:
+            if assets.mouse_pull.get_volume() < 0.9:
+                assets.mouse_pull.set_volume(assets.mouse_pull.get_volume() + 0.03 * dt)
             mpos = Vec(pygame.mouse.get_pos())
             pygame.mouse.set_pos(mpos + (self.pos - mpos) * 0.1)
             self.linear_scale -= 0.08 * dt
             if self.capture_timer.ended():
+                assets.mouse_pull.fadeout(1500)
                 self.scene.remove_blob(self)
                 self.scene.captured = False
                 self.scene.invulnerable_timer.reset()
@@ -122,6 +126,8 @@ class BulletBlob(Blob):
         if self.pos.distance_to(pygame.mouse.get_pos()) < self.radius and not self.has_captured \
             and self.pos.distance_to(Vec(400, 400)) > max(self.scene.main_blob.radius - 50, 25) \
                 and self.scene.invulnerable_timer.ended():
+            assets.mouse_pull.set_volume(0)
+            assets.mouse_pull.play()
             self.has_captured = True
             self.scene.captured = True
             self.capture_timer.start()
