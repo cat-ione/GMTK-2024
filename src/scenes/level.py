@@ -48,7 +48,7 @@ class Level(Scene):
         self.zoom = 0
         self.zoom_speed = 0
 
-        self.bullet_timer = Timer(lambda r: 27 / r, self.main_blob.radius)
+        self.bullet_timer = Timer(lambda z: 0.004 / z if z != 0 else 1, self.main_blob.radius)
         self.bullet_timer.start()
         self.captured = False
         self.invulnerable_timer = Timer(lambda: 1.0)
@@ -94,7 +94,7 @@ class Level(Scene):
         self.zoom += self.zoom_speed * dt
 
     def summon_bullets(self) -> None:
-        if self.bullet_timer.ended_and_reset(self.main_blob.radius):
+        if self.bullet_timer.ended_and_reset(self.zoom_speed):
             angle = uniform(0, 2 * pi)
             BulletBlob(self, (cos(angle) * 600 + 400, sin(angle) * 600 + 400))
 
