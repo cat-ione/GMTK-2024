@@ -23,8 +23,8 @@ class MainMenu(Scene):
         surf.fill((0, 0, 0, 255))
         self.background = Texture(self.game.window, surf)
 
-        self.gamma_index = 1
         self.gamma_levels = [0.75, 1.0, 1.6, 2.2, 2.8]
+        self.gamma_index = self.gamma_levels.index(round(self.game.shader.get("u_gamma"), 2))
         self.gamma_hints = ["Spookily Dark", "Dark: Best for OLEDs", "Bright", "Very Bright: Good for most other monitors", "Blindingly Bright: Why?"]
         self.add(Button(self, (400, 400), "Play", 50, lambda: self.game.change_scene(LevelSelection(self.game))))
         self.add(Button(self, (280, 610), "–", 80, self.decrease_gamma, scale=0.5))
