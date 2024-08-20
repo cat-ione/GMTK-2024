@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from src.core.game import Game
 
 from src.sprites.blob import Blob, ParticleBlob, DragInducedBlob, BulletBlob, DragInducedAntiBlob
+from src.sprites.pin import Pin, PinParticle
 from src.core.glpg import Texture, Shader
 from src.core.scene import Scene
 from src.utils import Timer, Vec
@@ -385,9 +386,31 @@ class Level3(Level):
 class Level4(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
-        print("Level 4")
+
+        self.surface = pygame.Surface(game.window.size, pygame.SRCALPHA)
+        self.texture = Texture(game.window, self.surface, Shader(game.window, "assets/shaders/ink.frag"))
+
+        self.pins = []
 
     def update(self, dt: float) -> None:
         super().update(dt)
+
+        if self.game.events.get(pygame.MOUSEBUTTONDOWN) and not self.captured:
+            self.add((pin := Pin(self, pygame.mouse.get_pos())))
+            self.pins.append(pin)
+
+        self.expand_speed = self.orig_expand_speed * (1 - len(self.pins) / 50)
+
+    def remove_pin(self, pin: Pin) -> None:
+        self.remove(pin)
+        self.pins.remove(pin)
+        for i in range(10):
+            self.add(PinParticle(self, pin.pos + (pin.pos - pin.pos2) * i / 10))
+
+    def draw(self, screen: pygame.Surface) -> None:
+        self.surface.fill((0, 0, 0, 0))
+        self.sprite_manager.draw(self.surface)
+        self.texture.update(self.surface)
+        super().draw(screen)
 
 levels = [Level1, Level2, Level3, Level4]

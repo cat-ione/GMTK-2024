@@ -92,4 +92,5 @@ class NoRenderLayer(RenderLayer):
 class Layer(Enum):
     BLOB = NoRenderLayer
     INK = RenderLayer
+    PIN = RenderLayer
     UI = RenderLayer
