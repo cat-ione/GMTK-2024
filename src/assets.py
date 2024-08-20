@@ -48,7 +48,7 @@ pin_break = pygame.mixer.Sound(pathof("assets/sounds/pin_break.wav"))
 pin_break.set_volume(0.8)
 button_hover = pygame.mixer.Sound(pathof("assets/sounds/hover.wav"))
 button_click = pygame.mixer.Sound(pathof("assets/sounds/pop.wav"))
-ink = pygame.mixer.Sound(pathof("assets/sounds/ink.wav"))
+ink = pygame.mixer.Sound(pathof("assets/sounds/zzz.wav"))
 ink.set_volume(0.5)
 
 pygame.display.quit()

@@ -32,6 +32,7 @@ class Ink(Sprite):
         self.has_landed = False
         self.sizzle_timer = Timer(lambda: uniform(1.5, 2.2))
         self.sizzle_timer.start()
+        assets.ink.set_volume(0)
         assets.ink.play()
 
     def update(self, dt: float) -> None:
@@ -40,6 +41,8 @@ class Ink(Sprite):
             assets.ink.fadeout(400)
 
         if self.drawing:
+            if assets.ink.get_volume() < 0.3:
+                assets.ink.set_volume(assets.ink.get_volume() + 0.05 * dt)
             if self.sizzle_timer.ended_and_reset():
                 assets.ink.play()
             if self.draw_timer.ended_and_reset():
