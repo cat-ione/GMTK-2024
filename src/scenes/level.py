@@ -408,7 +408,7 @@ class Level4(Level):
         self.remove(pin)
         self.pins.remove(pin)
         for i in range(10):
-            self.add(PinParticle(self, pin.pos + (pin.pos - pin.pos2) * i / 10))
+            self.add(PinParticle(self, pin.pos - (pin.pos - pin.pos2) * i / 10))
 
     def draw(self, screen: pygame.Surface) -> None:
         self.surface.fill((0, 0, 0, 0))
