@@ -51,5 +51,8 @@ class Game:
         if QUIT in self.events:
             raise AbortGame
 
-    def change_scene(self, scene: Scene) -> None:
+    def change_scene(self, scene: Scene | str) -> None:
+        if isinstance(scene, str):
+            self.scene = eval(scene)(self)
+            return
         self.scene = scene

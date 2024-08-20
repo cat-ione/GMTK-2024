@@ -109,6 +109,12 @@ class Level(Scene):
         if self.lost_end_timer.ended():
             self.game.change_scene(levels[levels.index(self.__class__)](self.game))
 
+        if self.game.events.get(pygame.KEYDOWN):
+            if self.game.events[pygame.KEYDOWN].key == pygame.K_r:
+                self.game.change_scene(levels[levels.index(self.__class__)](self.game))
+            elif self.game.events[pygame.KEYDOWN].key == pygame.K_ESCAPE:
+                self.game.change_scene("MainMenu")
+
     def summon_bullets(self) -> None:
         if self.bullet_timer.ended_and_reset(self.main_blob.radius):
             angle = uniform(0, 2 * pi)
