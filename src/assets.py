@@ -12,8 +12,12 @@ class SpriteSheet(list):
             self.append(self.image.subsurface((0, i * height, self.image.get_width(), height)))
 
 pygame.display.set_mode((1, 1), pygame.NOFRAME)
+pygame.font.init()
 
 # Load images
 noise_image = load_image("noise.png")
+
+# Load fonts
+fonts = [pygame.font.SysFont("franklingothicmedium", size) for size in range(0, 100)]
 
 pygame.display.quit()
