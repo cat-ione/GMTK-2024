@@ -54,6 +54,10 @@ class Level(Scene):
 
         self.win_end_timer = Timer(lambda: 5.0)
         self.lost_end_timer = Timer(lambda: 3.0)
+        self.level = levels.index(self.__class__) + 1
+        self.level_shader = Shader(game.window, "assets/shaders/fade.frag")
+        self.level_texture = Texture(game.window, assets.fonts[80].render(str(self.level), True, (222, 222, 222)), self.level_shader)
+        self.level_alpha = 1
 
     def update(self, dt: float) -> None:
         r = self.main_blob.radius
@@ -96,6 +100,9 @@ class Level(Scene):
         else:
             self.game.shader.send("u_whiten", self.game.shader.get("u_whiten") * 0.976 ** dt)
 
+        self.level_alpha -= 0.005 * dt
+        self.level_shader.send("u_alpha", self.level_alpha)
+
         if self.win_end_timer.ended():
             self.game.shader.send("u_whiten", 0.0)
             self.game.change_scene(levels[levels.index(self.__class__) + 1](self.game))
@@ -118,6 +125,9 @@ class Level(Scene):
         if self.texture is not None:
             self.game.texture.blit(self.texture, (0, 0))
         self.game.texture.blit(self.blob_texture, (0, 0))
+        text_surf = assets.fonts[80].render(str(self.level), True, (222, 222, 222))
+        self.level_texture.update(text_surf)
+        self.game.texture.blit(self.level_texture, Vec(self.game.window.size) / 2 - Vec(self.level_texture.size) / 2)
 
     def add_blob(self, blob: Blob) -> None:
         if blob.antiball:
@@ -153,11 +163,11 @@ class Level1(Level):
             if self.current_ink is not None and self.current_ink.drawing:
                 self.remove(self.current_ink)
                 self.current_ink = None
-            return
+        else:
+            if self.game.events.get(pygame.MOUSEBUTTONDOWN):
+                self.current_ink = Ink(self)
+                self.add(self.current_ink)
 
-        if self.game.events.get(pygame.MOUSEBUTTONDOWN):
-            self.current_ink = Ink(self)
-            self.add(self.current_ink)
         if all([val > self.angle_coverage // 24 for val in self.covered_angles.values()]):
             self.angle_coverage = sum(self.covered_angles.values())
             self.expand_speed = self.orig_expand_speed * 0.25 * (4 - self.angle_coverage // 24)
