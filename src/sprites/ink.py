@@ -30,7 +30,7 @@ class Ink(Sprite):
         self.closed = False
         self.present_coverage = 0
         self.has_landed = False
-        self.sizzle_timer = Timer(lambda: uniform(1.5, 2.2))
+        self.sizzle_timer = Timer(lambda: 9)
         self.sizzle_timer.start()
         assets.ink.set_volume(0)
         assets.ink.play()

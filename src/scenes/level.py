@@ -317,6 +317,7 @@ class Level2(Level):
 class Level3(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
+        assets.ink.stop()
 
         self.dragging = False
         self.start_drag = Vec(0, 0)
