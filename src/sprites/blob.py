@@ -81,6 +81,14 @@ class DragInducedAntiBlob(Blob):
     def update(self, dt: float) -> None:
         if self.dragging: return
         self.radius -= 0.04 * dt
+        close = 0
+        for ball in self.scene.antiballs:
+            if self.pos.distance_to(ball.pos) < 10:
+                close += 1
+        if close > 3:
+            self.scene.remove_blob(self)
+            self.scene.expand_speed *= 1.07
+            return
         self.scene.expand_speed += 0.0000025 * dt
         if self.radius <= 0:
             self.scene.remove_blob(self)

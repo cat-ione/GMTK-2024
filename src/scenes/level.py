@@ -368,9 +368,9 @@ class Level3(Level):
             dist1 = mpos.distance_to((400, 400))
             dist2 = self.start_drag.distance_to((400, 400))
             if dist1 < dist2: # drag in
-                self.current_anti.radius = (dist2 - dist1) * 0.5
+                self.current_anti.radius = (dist2 - dist1) * 0.3
             elif dist1 > dist2: # drag out
-                self.current_blob.radius = dist1 - dist2
+                self.current_blob.radius = (dist1 - dist2) * 0.5
 
     def keep_out_of_main_blob(self) -> None:
         # Don't keep out
