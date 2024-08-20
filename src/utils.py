@@ -101,4 +101,5 @@ class Timer:
 
     @property
     def progress(self) -> float:
+        if not self.started: return 0
         return (time.time() - self.start_time) / self.total_time

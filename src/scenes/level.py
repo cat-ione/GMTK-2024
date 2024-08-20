@@ -52,7 +52,7 @@ class Level(Scene):
 
         self.texture: Texture = None
 
-        self.win_end_timer = Timer(lambda: 3.0)
+        self.win_end_timer = Timer(lambda: 5.0)
         self.lost_end_timer = Timer(lambda: 3.0)
 
     def update(self, dt: float) -> None:
@@ -77,8 +77,10 @@ class Level(Scene):
 
         if self.main_blob.radius > 600:
             self.lost_end_timer.start()
+            self.invulnerable_timer.reset()
         elif self.expand_speed <= 0:
             self.win_end_timer.start()
+            self.invulnerable_timer.reset()
 
         self.blob_shader.send("u_metaballCount", self.blob_count)
         self.blob_shader.send("u_metaballs", [self.blobs[i].data if i < len(self.blobs) else (0, 0, 0) for i in range(400)])
@@ -89,7 +91,13 @@ class Level(Scene):
 
         self.sprite_manager.update(dt)
 
+        if self.win_end_timer.progress < 0.02:
+            self.game.shader.send("u_whiten", self.win_end_timer.progress * 16)
+        else:
+            self.game.shader.send("u_whiten", self.game.shader.get("u_whiten") * 0.976 ** dt)
+
         if self.win_end_timer.ended():
+            self.game.shader.send("u_whiten", 0.0)
             self.game.change_scene(levels[levels.index(self.__class__) + 1](self.game))
         if self.lost_end_timer.ended():
             self.game.change_scene(levels[levels.index(self.__class__)](self.game))
