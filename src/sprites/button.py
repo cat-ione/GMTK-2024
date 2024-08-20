@@ -33,6 +33,8 @@ class Button(Sprite):
 
     def update(self, dt: float) -> None:
         if (hover := self.pos.distance_to(pygame.mouse.get_pos()) < self.radius + 5) and not self.hover:
+            assets.button_hover.set_volume(uniform(0.4, 0.6))
+            assets.button_hover.play()
             self.particle_timer = Timer(lambda: 0.03)
             self.particle_timer.start()
         elif not hover and self.hover:
@@ -43,6 +45,8 @@ class Button(Sprite):
         if self.hover:
             self.main_ball.radius += (self.radius * 1.3 - self.main_ball.radius) * 0.2 * dt
             if self.game.events.get(pygame.MOUSEBUTTONUP):
+                assets.button_click.set_volume(uniform(0.7, 0.9))
+                assets.button_click.play()
                 self.callback()
         else:
             self.main_ball.radius += (self.radius - self.main_ball.radius) * 0.2 * dt
