@@ -112,7 +112,7 @@ class BulletBlob(Blob):
                 return
 
         if self.pos.distance_to(pygame.mouse.get_pos()) < self.radius and not self.has_captured \
-            and self.pos.distance_to(Vec(400, 400)) > self.scene.main_blob.radius / 2 \
+            and self.pos.distance_to(Vec(400, 400)) > max(self.scene.main_blob.radius - 50, 25) \
                 and self.scene.invulnerable_timer.ended():
             self.has_captured = True
             self.scene.captured = True
