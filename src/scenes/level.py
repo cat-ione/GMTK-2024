@@ -56,7 +56,6 @@ class Level(Scene):
         self.lost_end_timer = Timer(lambda: 3.0)
 
     def update(self, dt: float) -> None:
-        print(self.blob_count)
         r = self.main_blob.radius
         for _ in range(self.blob_timer.ended_and_reset(r)):
             angle = uniform(0, 2 * pi)
