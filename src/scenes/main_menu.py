@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.core.game import Game
 
-from src.core.glpg import Texture, Shader
+from src.scenes.level_selection import LevelSelection
 from src.sprites.button import Button
-from src.scenes.level import levels
+from src.core.glpg import Texture
 from src.core.scene import Scene
 import src.assets as assets
 from src.exe import pathof
@@ -26,9 +26,9 @@ class MainMenu(Scene):
         self.gamma_index = 1
         self.gamma_levels = [0.75, 1.0, 1.6, 2.2, 2.8]
         self.gamma_hints = ["Spookily Dark", "Dark: Best for OLEDs", "Bright", "Very Bright: Good for most other monitors", "Blindingly Bright: Why?"]
-        self.add(Button(self, (400, 400), "Play", 50, lambda: self.game.change_scene(levels[0](self.game))))
-        self.add(Button(self, (280, 650), "–", 80, self.decrease_gamma))
-        self.add(Button(self, (520, 650), "+", 80, self.increase_gamma))
+        self.add(Button(self, (400, 400), "Play", 50, lambda: self.game.change_scene(LevelSelection(self.game))))
+        self.add(Button(self, (280, 650), "–", 80, self.decrease_gamma, scale=0.5))
+        self.add(Button(self, (520, 650), "+", 80, self.increase_gamma, scale=0.5))
         self.gamma_texture = Texture(self.game.window, assets.fonts[34].render(str(self.gamma_levels[self.gamma_index]), True, (222, 222, 222)))
         self.gamma_hint_texture = Texture(self.game.window, assets.fonts[18].render(self.gamma_hints[self.gamma_index], True, (222, 222, 222)))
 

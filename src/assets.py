@@ -18,6 +18,6 @@ pygame.font.init()
 noise_image = load_image("noise.png")
 
 # Load fonts
-fonts = [pygame.font.SysFont("bahnschrift", size) for size in range(0, 100)]
+fonts = [pygame.font.SysFont("bahnschrift", size) for size in range(0, 200)]
 
 pygame.display.quit()
