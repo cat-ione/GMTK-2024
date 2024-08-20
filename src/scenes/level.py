@@ -415,6 +415,7 @@ class Level4(Level):
         self.expand_speed = self.orig_expand_speed * (1 - len(self.pins) / 50)
 
     def remove_pin(self, pin: Pin) -> None:
+        assets.pin_break.play()
         self.remove(pin)
         self.pins.remove(pin)
         for i in range(10):

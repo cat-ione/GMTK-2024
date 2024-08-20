@@ -44,5 +44,7 @@ dialogue = [
 ]
 win_sound = pygame.mixer.Sound(pathof("assets/sounds/win.wav"))
 win_sound.set_volume(0.6)
+pin_break = pygame.mixer.Sound(pathof("assets/sounds/pin_break.wav"))
+pin_break.set_volume(0.8)
 
 pygame.display.quit()
