@@ -16,6 +16,8 @@ class MainMenu(Scene):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
 
+        pygame.mixer_music.load("assets/sounds/noise.mp3")
+
         surf = pygame.Surface(self.game.window.size, SRCALPHA)
         surf.fill((0, 0, 0, 255))
         self.background = Texture(self.game.window, surf)

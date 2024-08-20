@@ -19,6 +19,10 @@ class Level(Scene):
         super().__init__(game)
         pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
+        self.volume = 0
+        pygame.mixer.music.set_volume(self.volume)
+        pygame.mixer.music.play(-1)
+
         self.blob_shader = Shader(game.window, "assets/shaders/metaball.frag")
         surf = pygame.Surface(game.window.size, pygame.SRCALPHA)
         self.blob_texture = Texture(game.window, surf, self.blob_shader)
@@ -106,6 +110,7 @@ class Level(Scene):
         elif self.expand_speed <= 0:
             self.win_end_timer.start()
             self.invulnerable_timer.reset()
+            pygame.mixer.music.fadeout(4500)
 
     def other_stuff(self, dt: float) -> None:
         self.blob_shader.send("u_metaballCount", self.blob_count)
@@ -136,6 +141,12 @@ class Level(Scene):
                 self.game.change_scene(levels[levels.index(self.__class__)](self.game))
             elif self.game.events[pygame.KEYDOWN].key == pygame.K_ESCAPE:
                 self.game.change_scene("MainMenu")
+
+        if self.volume < 0.15:
+            self.volume += 0.001 * dt
+        else:
+            self.volume = 0.15 + 0.85 * self.main_blob.radius / 400
+        pygame.mixer.music.set_volume(self.volume)
 
     def draw(self, screen: pygame.Surface) -> None:
         self.fractal_post_texture.blit(self.fractal_texture, (0, 0))
