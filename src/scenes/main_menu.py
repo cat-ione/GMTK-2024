@@ -8,6 +8,7 @@ from src.sprites.button import Button
 from src.scenes.level import levels
 from src.core.scene import Scene
 import src.assets as assets
+from src.exe import pathof
 
 from pygame.locals import SRCALPHA
 import pygame
@@ -16,7 +17,7 @@ class MainMenu(Scene):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
 
-        pygame.mixer_music.load("assets/sounds/noise.mp3")
+        pygame.mixer_music.load(pathof("assets/sounds/noise.mp3"))
 
         surf = pygame.Surface(self.game.window.size, SRCALPHA)
         surf.fill((0, 0, 0, 255))
