@@ -249,6 +249,9 @@ class Level1(Level):
             self.prompt_index = len(self.prompts) - 1
         self.prompt_texture = Texture(self.game.window, assets.fonts[30].render(self.prompts[self.prompt_index], True, (222, 222, 222)))
 
+        if assets.dialogue[self.prompt_index] is not None:
+            assets.dialogue[self.prompt_index].play()
+
         if self.prompt_index == 4:
             self.grow_timer.start()
             self.linear_radius = 3

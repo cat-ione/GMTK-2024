@@ -28,5 +28,19 @@ pygame.mixer.init(22050, -16, 2, 32)
 
 pygame.mixer.music.load(pathof("assets/sounds/noise.mp3"))
 pin_hit = pygame.mixer.Sound(pathof("assets/sounds/pin_hit.wav"))
+dialogue = [
+    None,
+    pygame.mixer.Sound(pathof("assets/sounds/1.wav")),
+    pygame.mixer.Sound(pathof("assets/sounds/2.wav")),
+    pygame.mixer.Sound(pathof("assets/sounds/3.wav")),
+    pygame.mixer.Sound(pathof("assets/sounds/4.wav")),
+    pygame.mixer.Sound(pathof("assets/sounds/5.wav")),
+    pygame.mixer.Sound(pathof("assets/sounds/6.wav")),
+    None,
+    pygame.mixer.Sound(pathof("assets/sounds/8.wav")),
+    pygame.mixer.Sound(pathof("assets/sounds/9.wav")),
+    None,
+    pygame.mixer.Sound(pathof("assets/sounds/11.wav")),
+]
 
 pygame.display.quit()
