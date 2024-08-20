@@ -39,7 +39,7 @@ class Game:
             self.window.blit(self.texture, (0, 0))
             pygame.display.flip()
 
-            pygame.display.set_caption(f"FPS: {self.clock.get_fps():.0f}")
+            pygame.display.set_caption(f"Umbral | FPS: {self.clock.get_fps():.0f}")
 
             self.dt = self.clock.tick(0) * 0.05
 
