@@ -135,7 +135,10 @@ class Level(Scene):
 
         if self.win_end_timer.ended():
             self.game.shader.send("u_whiten", 0.0)
-            self.game.change_scene(levels[levels.index(self.__class__) + 1](self.game))
+            try:
+                self.game.change_scene(levels[levels.index(self.__class__) + 1](self.game))
+            except IndexError:
+                self.game.change_scene("MainMenu")
         if self.lost_end_timer.ended():
             self.game.change_scene(levels[levels.index(self.__class__)](self.game))
 
