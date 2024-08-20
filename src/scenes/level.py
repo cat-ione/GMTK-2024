@@ -142,10 +142,7 @@ class Level(Scene):
             elif self.game.events[pygame.KEYDOWN].key == pygame.K_ESCAPE:
                 self.game.change_scene("MainMenu")
 
-        if self.volume < 0.15:
-            self.volume += 0.001 * dt
-        else:
-            self.volume = 0.15 + 0.85 * self.main_blob.radius / 400
+        self.volume += ((0.15 + 0.85 * self.main_blob.radius / 400) - self.volume) * 0.01 * dt
         pygame.mixer.music.set_volume(self.volume)
 
     def draw(self, screen: pygame.Surface) -> None:
