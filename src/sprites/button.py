@@ -44,7 +44,7 @@ class Button(Sprite):
         self.hover = hover
         if self.hover:
             self.main_ball.radius += (self.radius * 1.3 - self.main_ball.radius) * 0.2 * dt
-            if self.game.events.get(pygame.MOUSEBUTTONUP):
+            if self.game.events.get(pygame.MOUSEBUTTONUP) and self.game.events[pygame.MOUSEBUTTONUP].button == 1:
                 assets.button_click.set_volume(uniform(0.7, 0.9))
                 assets.button_click.play()
                 self.callback()

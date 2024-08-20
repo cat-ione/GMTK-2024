@@ -300,7 +300,7 @@ class Level2(Level):
                 self.current_ink = None
                 assets.ink.fadeout(400)
         else:
-            if self.game.events.get(pygame.MOUSEBUTTONDOWN):
+            if self.game.events.get(pygame.MOUSEBUTTONDOWN) and self.game.events[pygame.MOUSEBUTTONDOWN].button == 1:
                 self.current_ink = Ink(self)
                 self.add(self.current_ink)
 
@@ -341,7 +341,7 @@ class Level3(Level):
         if self.main_blob.radius + 5 - anti_sum * 0.3 < dist < self.main_blob.radius + 40 - anti_sum * 0.2:
             self.figure_out_angle(angle)
 
-            if self.game.events.get(pygame.MOUSEBUTTONDOWN):
+            if self.game.events.get(pygame.MOUSEBUTTONDOWN) and self.game.events[pygame.MOUSEBUTTONDOWN].button == 1:
                 self.dragging = True
                 self.start_drag = Vec(mpos)
                 self.current_blob = DragInducedBlob(self, mpos, 0)
@@ -350,7 +350,7 @@ class Level3(Level):
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
-        if self.game.events.get(pygame.MOUSEBUTTONUP):
+        if self.game.events.get(pygame.MOUSEBUTTONUP) and self.game.events[pygame.MOUSEBUTTONUP].button == 1:
             self.dragging = False
             if not (self.current_blob is None or self.current_anti is None):
                 if self.current_blob.radius > self.current_anti.radius:
@@ -409,7 +409,7 @@ class Level4(Level):
     def update(self, dt: float) -> None:
         super().update(dt)
 
-        if self.game.events.get(pygame.MOUSEBUTTONDOWN) and not self.captured:
+        if self.game.events.get(pygame.MOUSEBUTTONDOWN) and self.game.events[pygame.MOUSEBUTTONDOWN].button == 1 and not self.captured:
             self.add((pin := Pin(self, pygame.mouse.get_pos())))
             self.pins.append(pin)
 
