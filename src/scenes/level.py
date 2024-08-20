@@ -204,6 +204,9 @@ class Level1(Level):
         self.dodge_timer = Timer(lambda: 10)
 
     def update(self, dt: float) -> None:
+        if self.prompt_index == 3:
+            self.blob_timer.reset(99)
+
         if self.prompt_index > 3:
             self.spawn_particles()
 
