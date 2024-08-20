@@ -24,8 +24,7 @@ class MainMenu(Scene):
         self.gamma_levels = [0.75, 1.0, 1.6, 2.2, 2.8]
         self.gamma_hints = ["Spookily Dark", "Dark: Best for OLEDs", "Bright", "Very Bright: Good for most other monitors", "Blindingly Bright: Why?"]
         self.add(Button(self, (400, 400), "Play", 50, lambda: self.game.change_scene(levels[0](self.game))))
-        self.add((bt := Button(self, (280, 650), "–", 80, self.decrease_gamma)))
-        bt.text_offset = (0, -8)
+        self.add(Button(self, (280, 650), "–", 80, self.decrease_gamma))
         self.add(Button(self, (520, 650), "+", 80, self.increase_gamma))
         self.gamma_texture = Texture(self.game.window, assets.fonts[34].render(str(self.gamma_levels[self.gamma_index]), True, (222, 222, 222)))
         self.gamma_hint_texture = Texture(self.game.window, assets.fonts[18].render(self.gamma_hints[self.gamma_index], True, (222, 222, 222)))

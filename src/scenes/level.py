@@ -133,7 +133,7 @@ class Level(Scene):
         self.game.texture.blit(self.blob_texture, (0, 0))
         text_surf = assets.fonts[80].render(str(self.level), True, (222, 222, 222))
         self.level_texture.update(text_surf)
-        self.game.texture.blit(self.level_texture, Vec(self.game.window.size) / 2 - Vec(self.level_texture.size) / 2)
+        self.game.texture.blit(self.level_texture, Vec(self.game.window.size) / 2 - Vec(self.level_texture.size) / 2 + (0, 10))
 
     def add_blob(self, blob: Blob) -> None:
         if blob.antiball:
@@ -154,6 +154,14 @@ class Level(Scene):
         self.remove(blob)
 
 class Level1(Level):
+    def __init__(self, game: Game) -> None:
+        super().__init__(game)
+        print("Level 1")
+
+    def update(self, dt: float) -> None:
+        super().update(dt)
+
+class Level2(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
 
@@ -184,7 +192,7 @@ class Level1(Level):
         self.texture.update(self.surface)
         super().draw(screen)
 
-class Level2(Level):
+class Level3(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
 
@@ -267,12 +275,12 @@ class Level2(Level):
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
 
-class Level3(Level):
+class Level4(Level):
     def __init__(self, game: Game) -> None:
         super().__init__(game)
-        print("Level 3")
+        print("Level 4")
 
     def update(self, dt: float) -> None:
         super().update(dt)
 
-levels = [Level1, Level2, Level3]
+levels = [Level1, Level2, Level3, Level4]

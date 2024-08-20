@@ -22,7 +22,7 @@ class Button(Sprite):
         surf = pygame.Surface((self.radius * 2 + 150, self.radius * 2 + 150), pygame.SRCALPHA)
         self.texture = Texture(self.game.window, surf, self.shader)
         self.callback = callback
-        self.text_offset = Vec(0, 0)
+        self.text_offset = Vec(0, 8)
         self.metaballs = []
         self.metaball_count = 0
         self.main_ball = Blob(self, self.texture.size // 2, self.radius)
