@@ -12,16 +12,17 @@ from typing import Callable
 import pygame
 
 class Button(Sprite):
-    def __init__(self, scene: Scene, pos: tuple[int, int], text: str, callback: Callable[[], None]) -> None:
+    def __init__(self, scene: Scene, pos: tuple[int, int], text: str, font_size: int, callback: Callable[[], None]) -> None:
         super().__init__(scene, Layer.UI)
         self.pos = Vec(pos)
-        self.text_surf = assets.fonts[40].render(text, True, (222, 222, 222))
+        self.text_surf = assets.fonts[font_size].render(text, True, (222, 222, 222))
         self.text_texture = Texture(self.game.window, self.text_surf)
-        self.radius = self.text_surf.get_width() // 2 + 30
+        self.radius = self.text_surf.get_width() // 2 * 2.0
         self.shader = Shader(self.game.window, "assets/shaders/metaball.frag")
         surf = pygame.Surface((self.radius * 2 + 150, self.radius * 2 + 150), pygame.SRCALPHA)
         self.texture = Texture(self.game.window, surf, self.shader)
         self.callback = callback
+        self.text_offset = Vec(0, 0)
         self.metaballs = []
         self.metaball_count = 0
         self.main_ball = Blob(self, self.texture.size // 2, self.radius)
@@ -54,7 +55,7 @@ class Button(Sprite):
 
     def draw(self, screen: pygame.Surface) -> None:
         self.game.texture.blit(self.texture, self.pos - Vec(self.radius + 75, self.radius + 75))
-        self.game.texture.blit(self.text_texture, self.pos - Vec(self.text_texture.size) // 2)
+        self.game.texture.blit(self.text_texture, self.pos - Vec(self.text_texture.size) // 2 + self.text_offset)
 
     def add_blob(self, blob: Blob) -> None:
         self.metaballs.append(blob)

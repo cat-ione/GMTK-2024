@@ -7,6 +7,7 @@ from src.core.glpg import Texture, Shader
 from src.sprites.button import Button
 from src.scenes.level import levels
 from src.core.scene import Scene
+import src.assets as assets
 
 from pygame.locals import SRCALPHA
 import pygame
@@ -19,7 +20,15 @@ class MainMenu(Scene):
         surf.fill((0, 0, 0, 255))
         self.background = Texture(self.game.window, surf)
 
-        self.add(Button(self, (400, 400), "Play", lambda: self.game.change_scene(levels[0](self.game))))
+        self.gamma_index = 1
+        self.gamma_levels = [0.75, 1.0, 1.6, 2.2, 2.8]
+        self.gamma_hints = ["Spookily Dark", "Dark: Best for OLEDs", "Bright", "Very Bright: Good for most other monitors", "Blindingly Bright: Why?"]
+        self.add(Button(self, (400, 400), "Play", 50, lambda: self.game.change_scene(levels[0](self.game))))
+        self.add((bt := Button(self, (280, 650), "–", 80, self.decrease_gamma)))
+        bt.text_offset = (0, -8)
+        self.add(Button(self, (520, 650), "+", 80, self.increase_gamma))
+        self.gamma_texture = Texture(self.game.window, assets.fonts[34].render(str(self.gamma_levels[self.gamma_index]), True, (222, 222, 222)))
+        self.gamma_hint_texture = Texture(self.game.window, assets.fonts[18].render(self.gamma_hints[self.gamma_index], True, (222, 222, 222)))
 
     def update(self, dt: float) -> None:
         self.sprite_manager.update(dt)
@@ -27,3 +36,19 @@ class MainMenu(Scene):
     def draw(self, screen: pygame.Surface) -> None:
         self.game.texture.blit(self.background, (0, 0))
         self.sprite_manager.draw(screen)
+        self.game.texture.blit(self.gamma_texture, ((self.game.window.size[0] - self.gamma_texture.size[0]) // 2, 633))
+        self.game.texture.blit(self.gamma_hint_texture, ((self.game.window.size[0] - self.gamma_hint_texture.size[0]) // 2, 720))
+
+    def increase_gamma(self) -> None:
+        if self.gamma_index < len(self.gamma_levels) - 1:
+            self.gamma_index += 1
+            self.gamma_texture = Texture(self.game.window, assets.fonts[34].render(str(self.gamma_levels[self.gamma_index]), True, (222, 222, 222)))
+            self.gamma_hint_texture = Texture(self.game.window, assets.fonts[18].render(self.gamma_hints[self.gamma_index], True, (222, 222, 222)))
+            self.game.shader.send("u_gamma", self.gamma_levels[self.gamma_index])
+
+    def decrease_gamma(self) -> None:
+        if self.gamma_index > 0:
+            self.gamma_index -= 1
+            self.gamma_texture = Texture(self.game.window, assets.fonts[34].render(str(self.gamma_levels[self.gamma_index]), True, (222, 222, 222)))
+            self.gamma_hint_texture = Texture(self.game.window, assets.fonts[18].render(self.gamma_hints[self.gamma_index], True, (222, 222, 222)))
+            self.game.shader.send("u_gamma", self.gamma_levels[self.gamma_index])
