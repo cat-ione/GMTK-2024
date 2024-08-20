@@ -7,9 +7,11 @@ from src.core.render_layer import Layer
 from src.core.sprite import Sprite
 from src.core.scene import Scene
 from src.utils import Timer
+import src.assets as assets
 from src.utils import Vec
 
 from math import exp2, atan2, degrees, floor
+from random import uniform
 import pygame
 
 class Ink(Sprite):
@@ -28,12 +30,18 @@ class Ink(Sprite):
         self.closed = False
         self.present_coverage = 0
         self.has_landed = False
+        self.sizzle_timer = Timer(lambda: uniform(1.5, 2.2))
+        self.sizzle_timer.start()
+        assets.ink.play()
 
     def update(self, dt: float) -> None:
         if not pygame.mouse.get_pressed()[0]:
             self.drawing = False
+            assets.ink.fadeout(400)
 
         if self.drawing:
+            if self.sizzle_timer.ended_and_reset():
+                assets.ink.play()
             if self.draw_timer.ended_and_reset():
                 mpos = Vec(pygame.mouse.get_pos())
                 point = mpos - Vec(400, 400)

@@ -298,6 +298,7 @@ class Level2(Level):
             if self.current_ink is not None and self.current_ink.drawing:
                 self.remove(self.current_ink)
                 self.current_ink = None
+                assets.ink.fadeout(400)
         else:
             if self.game.events.get(pygame.MOUSEBUTTONDOWN):
                 self.current_ink = Ink(self)
